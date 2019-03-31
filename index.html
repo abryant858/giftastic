@@ -1,1 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <title>GifTastic</title>
+</head>
+<body>
+<div class="row">
+    <div class="button-area"></div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="display-area"></div>
+    </div>
+    <div class="col-md-6">
+        <div class="input-area"></div>
+        <form id="person-form">
+            <label for="person-input">Add Person</label>
+            <input type="text" id="person-input"><br>
 
+            <!-- Button triggers new person to be added -->
+            <input id="add-person" type="submit" value="Add Person">
+        </form>
+        <button id="add-more">Add 10</button>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript">
+    //Iniatl array of athletes
+    var topics = ['michael jordan', 'kobe bryant', 'tiger woods', 'shaq', 'charles barkely']
+    console.log(topics)
+    var name 
+    //This function renders and rerenders the HTML to display content
+    function displayInfo() {
+        $('.display-area').empty()
+
+        var topic = $(this).attr('data-name')
+        var queryURL = "http://api.giphy.com/v1/gifs/search?q=" + topic + "&api_key=qewGFFfjUN3mk1NYH4Es678Tjnz5aq4e&limit=10";
+        console.log(topic)
+        name = topic
+        //Creates AJAX call for the specific button being clicked
+        $.ajax({
+            url: queryURL,
+            method: "GET"
+        })
+        .then(function(response) {
+            var results = response.data
+            //The for loop will append the rating and image for each retured response to the display-area in the HTML.
+            for (var i = 0; i < results.length; i++) {
+                var ratings = results[i].rating
+                var gifDiv = $('<div>')
+                        console.log(response)
+                var ratingEl = $('<p>')
+                        console.log(ratings)
+                var p = ratingEl.text("Rating: "+ ratings)
+
+                var resultImg = $('<img>')
+                resultImg.attr("src", results[i].images.fixed_height.url)
+
+                gifDiv.append(p)
+                gifDiv.append(resultImg)
+                $('.display-area').append(gifDiv)
+            }
+        });
+    }    
+    //Creates new buttons
+    function renderButtons(){
+        //Clears existing buttons to replace them with the updated buttons, so duplicate aren't present.
+        $('.button-area').empty()
+        
+        console.log(topics.length)
+        for(var i = 0; i < topics.length; i++) {
+            var newButton = $('<button>')
+            newButton.addClass('person')
+            newButton.attr('data-name', topics[i])
+            newButton.text(topics[i])
+            $('.button-area').append(newButton)
+            console.log(i)
+        }
+    }
+    //When add-person button clicked, additional person added to the topics array
+    $('#add-person').on("click", function(event) {
+        event.preventDefault();
+        var persons = $('#person-input').val().trim()
+        
+        topics.push(persons) 
+        console.log(topics)
+        renderButtons()
+    })
+
+    //Funciton add 10 more gifs to HTML
+    function additionalGifs(){  
+        var topic = name
+        var queryURL = "http://api.giphy.com/v1/gifs/search?q=" + topic + "&api_key=qewGFFfjUN3mk1NYH4Es678Tjnz5aq4e&limit=10";
+        console.log(topic)
+        
+        //Creates AJAX call for the specific button being clicked
+        $.ajax({
+            url: queryURL,
+            method: "GET"
+        })
+        .then(function(response) {
+            var results = response.data
+            //The for loop will append the rating and image for each retured response to the display-area in the HTML.
+            for (var i = 0; i < 10; i++) {
+                var ratings = results[i].rating
+                var gifDiv = $('<div>')
+                        console.log(response)
+                var ratingEl = $('<p>')
+                        console.log(ratings)
+                var p = ratingEl.text("Rating: "+ ratings)
+
+                var resultImg = $('<img>')
+                resultImg.attr("src", results[i].images.fixed_height.url)
+
+                gifDiv.append(p)
+                gifDiv.append(resultImg)
+                $('.display-area').append(gifDiv)
+            }
+        });
+    }   
+    //Event listener
+    $(document).on("click", ".person", displayInfo)
+    $(document).on("click", "#add-more", additionalGifs)
+    //Creates inital buttons from array.
+    renderButtons()
+    
+    
+
+
+</script>
+</body>
+</html>
